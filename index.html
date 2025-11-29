@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Budget Travel Guide — Today's Trip</title>
+  <style>
+    :root{--accent:#1e90ff;--muted:#6b7280;--card:#ffffff;--bg:#f7fbff}
+    html,body{height:100%}
+    body{font-family:Inter,system-ui,Segoe UI,Roboto,Arial;margin:0;background:var(--bg);color:#0f172a;line-height:1.4}
+    .container{max-width:980px;margin:28px auto;padding:20px}
+    header{display:flex;gap:16px;align-items:center}
+    .logo{background:linear-gradient(135deg,var(--accent),#7dd3fc);color:white;padding:10px 14px;border-radius:10px;font-weight:700}
+    h1{margin:0;font-size:1.6rem}
+    p.lead{color:var(--muted);margin-top:6px}
+    .grid{display:grid;grid-template-columns:1fr 360px;gap:18px;margin-top:18px}
+    @media (max-width:880px){.grid{grid-template-columns:1fr}}
+    .card{background:var(--card);border-radius:12px;padding:16px;box-shadow:0 6px 18px rgba(16,24,40,0.06)}
+    .card h2{margin:0 0 8px 0}
+    .row{display:flex;gap:10px;margin-bottom:10px}
+    .row input[type="number"],select,input[type="text"]{flex:1;padding:8px;border-radius:8px;border:1px solid #e6eef9}
+    label{font-size:0.9rem;color:var(--muted);display:block;margin-bottom:6px}
+    button.btn{background:var(--accent);color:white;padding:10px 12px;border:none;border-radius:8px;cursor:pointer}
+    button.ghost{background:transparent;border:1px solid #cde8ff;color:var(--accent)}
+    ul.tips{padding-left:18px;margin:8px 0}
+    .itinerary{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+    .stage{background:#fbfdff;padding:10px;border-radius:8px;border:1px solid #eef6ff}
+    footer{margin-top:18px;color:var(--muted);font-size:0.85rem}
+    .result{font-weight:700;font-size:1.2rem;margin-top:8px}
+    .small{font-size:0.85rem;color:var(--muted)}
+    .actions{display:flex;gap:8px;align-items:center}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+    .fade{animation:fadeIn 0.7s ease}
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="hero" style="background:url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=60') center/cover no-repeat;height:260px;border-bottom-left-radius:14px;border-bottom-right-radius:14px;display:flex;align-items:center;justify-content:center;color:white;font-size:2rem;font-weight:700;box-shadow:0 6px 20px rgba(0,0,0,0.25);animation:fadeIn 1.2s ease;">Explore the World on a Budget</div>
+
+  <div class="container">
+    <header>
+      <div class="logo">TT</div>
+      <div>
+        <h1>Budget Travel Guide</h1>
+        <p class="lead">Smart tips, quick budget calculator and sample itineraries.</p>
+      </div>
+    </header>
+
+    <div style="text-align:right; margin-top:10px;">
+      <button id="themeToggle" class="ghost" style="padding:6px 10px;">Toggle Dark Mode</button>
+    </div>
+
+    <section class="card" style="padding:0;overflow:hidden;margin-bottom:18px;display:block">
+      <div style="height:220px;position:relative;background-image:url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1350&q=80');background-size:cover;background-position:center;">
+        <div style="position:absolute;left:20px;bottom:20px;color:white;text-shadow:0 6px 18px rgba(0,0,0,0.5)">
+          <h2 style="margin:0;font-size:1.8rem">Explore on a Budget</h2>
+          <p style="margin:6px 0 0">Select a destination and see estimated cost.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="grid">
+      <main class="card">
+        <h2>Plan smart — get the numbers</h2>
+        <p class="small">Fill details and click Estimate.</p>
+
+        <div style="margin-top:12px">
+          <label>Trip name (optional)</label>
+          <input id="tripName" type="text" />
+
+          <div style="margin-top:10px">
+            <label>Destination</label>
+            <select id="destination">
+              <option>Mizoram</option>
+              <option>Kapamodzu</option>
+              <option>Kaziranga</option>
+              <option>Sivasagar</option>
+              <option>Russia</option>
+              <option>Switzerland</option>
+              <option>Greece</option>
+              <option>Japan</option>
+              <option>Nepal</option>
+            </select>
+          </div>
+
+          <div class="row" style="margin-top:12px">
+            <div><label>Days</label><input id="days" type="number" value="3"></div>
+            <div><label>People</label><input id="people" type="number" value="1"></div>
+          </div>
+
+          <div class="row">
+            <div><label>Stay per night</label><input id="acc" type="number" value="1500"></div>
+            <div><label>Food per day</label><input id="food" type="number" value="600"></div>
+          </div>
+
+          <label>Transport</label>
+          <input id="transport" type="number" value="3000">
+
+          <label>Activities</label>
+          <input id="activities" type="number" value="1200">
+
+          <label>Contingency (%)</label>
+          <input id="cont" type="number" value="10">
+
+          <label>Currency symbol</label>
+          <input id="curr" type="text" value="₹">
+
+          <button class="btn" id="estimate">Estimate</button>
+          <button class="ghost" id="reset">Reset</button>
+
+          <div id="output" class="result"></div>
+          <div id="breakdown" class="small"></div>
+        </div>
+
+        <section style="margin-top:18px">
+          <h3>Spending Breakdown Chart</h3>
+          <canvas id="chart" width="300" height="300"></canvas>
+        </section>
+
+      </main>
+
+      <aside class="card">
+        <h2>Quick snapshot</h2>
+        <div id="snapshot" class="result">—</div>
+        <div id="snapshotDetail" class="small"></div>
+      </aside>
+    </div>
+
+    <footer>Made with ♥ for GitHub Pages.</footer>
+  </div>
+
+<script>
+// JS from canvas cleaned
+function format(v){return (curr.value||'₹') + Number(v).toLocaleString();}
+
+function estimate(){
+  let d=+days.value,p=+people.value;
+  let stay=d*+acc.value, food=d*+food.value;
+  let trans=+transport.value/p, act=+activities.value/p;
+  let base=stay+food+trans+act;
+  let contAmt=base*(+cont.value/100);
+  let total=base+contAmt;
+
+  output.textContent=`${format(total)} per person`;
+  snapshot.textContent=format(total);
+  snapshotDetail.textContent=`${d} days — ${p} people — ${destination.value}`;
+
+  breakdown.textContent=
+   `Stay: ${format(stay)} | Food: ${format(food)} | Transport: ${format(trans)} | Activities: ${format(act)} | Contingency: ${format(contAmt)}`;
+
+  updateChart(stay,food,trans,act);
+}
+
+reset.onclick=()=>{
+  days.value=3; people.value=1; acc.value=1500; food.value=600;
+  transport.value=3000; activities.value=1200; cont.value=10; curr.value='₹';
+  tripName.value=''; output.textContent=''; breakdown.textContent='';
+  snapshot.textContent='—'; snapshotDetail.textContent='';
+};
+
+let chart;
+function updateChart(a,f,t,ac){
+  const ctx=document.getElementById('chart').getContext('2d');
+  if(chart) chart.destroy();
+  chart=new Chart(ctx,{type:'pie',
+    data:{labels:['Stay','Food','Transport','Activities'],
+      datasets:[{data:[a,f,t,ac]}]},
+    options:{responsive:true}
+  });
+}
+
+window.onload=estimate;
+</script>
+
+</body>
+</html>
